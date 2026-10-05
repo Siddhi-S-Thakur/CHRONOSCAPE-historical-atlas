@@ -5,7 +5,8 @@ import { GeoJsonLayer, ArcLayer, ScatterplotLayer, TextLayer, PathLayer } from '
 import { useTemporal } from '../../context/TemporalContext';
 import { EMPIRE_TERRITORIES } from '../../map/geometry/territories';
 import { HISTORICAL_TRADE_ROUTES, TRADING_HUBS, TradeRoute, TradingHub } from '../../data/tradeRoutes';
-import { Play, Pause, RotateCcw, Compass, Anchor, Filter, Info, Shield, Ship, MapPin } from 'lucide-react';
+import { Play, Pause, RotateCcw, Compass, Anchor, Filter, Info, Shield, Ship, MapPin, Eye, Maximize2 } from 'lucide-react';
+import { sound } from '../../utils/sound';
 
 interface GlobeViewState {
   longitude: number;
@@ -316,25 +317,29 @@ export const HistoricalGlobeDeck: React.FC = () => {
   ]);
 
   // Center camera back to India
-  const resetToSubcontinent = useCallback(() => {
-    setViewState({
-      longitude: 78.96,
-      latitude: 20.59,
-      zoom: 1.8,
-      minZoom: 0.7,
-      maxZoom: 6,
-    });
+  // Camera Theaters
+  const flyToTheater = useCallback((lng: number, lat: number, zoom: number) => {
+    sound.playClick(750);
+    setIsRotating(false);
+    setViewState(prev => ({
+      ...prev,
+      longitude: lng,
+      latitude: lat,
+      zoom: zoom,
+    }));
   }, []);
 
   return (
     <div className="relative w-full h-full bg-[#05070D] overflow-hidden select-none">
-      {/* ── Deep Space Radial Background & Star Dust ─────────────────────── */}
+      {/* ── Deep Space Radial Background & Atmospheric Celestial Glow ─────── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(20,28,45,0.4) 0%, rgba(5,7,13,0.98) 75%)',
+          background: 'radial-gradient(circle at 50% 50%, rgba(24,36,60,0.45) 0%, rgba(5,7,13,0.98) 75%)',
         }}
       />
+      {/* Planetary Outer Atmospheric Rim Halo */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[620px] rounded-full pointer-events-none border border-[#40BEEF]/10 shadow-[0_0_120px_rgba(64,190,239,0.12)] opacity-70" />
 
       {/* ── DeckGL WebGL Canvas with GlobeView ───────────────────────────── */}
       <DeckGL
@@ -352,20 +357,55 @@ export const HistoricalGlobeDeck: React.FC = () => {
       />
 
       {/* ── Top-Right Globe Controls & Floating HUD ──────────────────────── */}
-      <div className="absolute top-5 right-6 z-20 flex flex-col items-end gap-2.5">
+      <div className="absolute top-5 right-6 z-20 flex flex-col items-end gap-2">
         {/* Badge: 3D Deck.gl Engine Active */}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0A0E18]/90 border border-[#C5A059]/40 backdrop-blur-md shadow-xl text-xs font-mono text-[#E2DDD3]">
-          <span className="w-2 h-2 rounded-full bg-[#40BEEF] animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-[#40BEEF] animate-pulse shadow-[0_0_8px_#40BEEF]" />
           <span className="text-[#C5A059] font-bold">DECK.GL 3D GLOBE</span>
           <span className="text-[#6A7590]">|</span>
           <span className="text-[#9BA5B9] text-[11px]">{currentAnchor.yearDisplay}</span>
+        </div>
+
+        {/* Camera Theater Presets */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-[#090D16]/95 border border-[#1E2538] shadow-xl backdrop-blur-md">
+          <button
+            onClick={() => flyToTheater(78.96, 20.59, 1.8)}
+            title="Focus camera on Indian Subcontinent"
+            className="px-2.5 py-1 rounded-lg text-[10px] font-mono text-[#A0ABC0] hover:text-[#FDE047] hover:bg-[#182032] transition-colors"
+          >
+            🇮🇳 INDIA
+          </button>
+          <button
+            onClick={() => flyToTheater(92.5, 9.0, 2.2)}
+            title="Focus camera on Bay of Bengal and Srivijaya maritime theater"
+            className="px-2.5 py-1 rounded-lg text-[10px] font-mono text-[#A0ABC0] hover:text-[#40BEEF] hover:bg-[#182032] transition-colors"
+          >
+            🌊 CHOLA SEA
+          </button>
+          <button
+            onClick={() => flyToTheater(58.0, 22.0, 1.9)}
+            title="Focus camera on Arabian Sea, Red Sea, and Silk Route"
+            className="px-2.5 py-1 rounded-lg text-[10px] font-mono text-[#A0ABC0] hover:text-[#F59E0B] hover:bg-[#182032] transition-colors"
+          >
+            🐪 SPICE ROUTE
+          </button>
+          <button
+            onClick={() => flyToTheater(78.0, 20.0, 1.1)}
+            title="Focus camera on global Eurasia"
+            className="px-2.5 py-1 rounded-lg text-[10px] font-mono text-[#A0ABC0] hover:text-[#CBD5E1] hover:bg-[#182032] transition-colors"
+          >
+            🌏 GLOBAL
+          </button>
         </div>
 
         {/* Action Toolbar */}
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#090D16]/95 border border-[#1E2538] shadow-2xl backdrop-blur-md">
           {/* Play/Pause Rotation */}
           <button
-            onClick={() => setIsRotating(prev => !prev)}
+            onClick={() => {
+              sound.playClick(600);
+              setIsRotating(prev => !prev);
+            }}
             title={isRotating ? 'Pause globe rotation' : 'Start auto-rotation'}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all text-[#A0ABC0] hover:text-[#F3EFE6] hover:bg-[#182032]"
           >
@@ -384,21 +424,12 @@ export const HistoricalGlobeDeck: React.FC = () => {
 
           <div className="w-px h-5 bg-[#1F2637]" />
 
-          {/* Reset View */}
-          <button
-            onClick={resetToSubcontinent}
-            title="Focus camera on the Indian Subcontinent"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all text-[#A0ABC0] hover:text-[#F3EFE6] hover:bg-[#182032]"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-[#C5A059]" />
-            <span>INDIA</span>
-          </button>
-
-          <div className="w-px h-5 bg-[#1F2637]" />
-
           {/* Toggle All Routes vs Era */}
           <button
-            onClick={() => setShowAllRoutes(prev => !prev)}
+            onClick={() => {
+              sound.playClick(700);
+              setShowAllRoutes(prev => !prev);
+            }}
             title="Toggle between active era trade routes and all historical networks"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
               showAllRoutes

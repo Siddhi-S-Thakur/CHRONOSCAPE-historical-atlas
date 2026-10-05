@@ -16,6 +16,7 @@ import { REVOLT_CENTERS } from '../data/places/revoltCenters';
 import { PEOPLE } from '../data/people';
 import { EVENTS } from '../data/events';
 import { PERSPECTIVES } from '../data/perspectives';
+import { sound } from '../utils/sound';
 
 interface TemporalContextType {
   currentAnchor: TemporalAnchor;
@@ -47,6 +48,8 @@ interface TemporalContextType {
   globeMode: '2d' | '3d';
   setGlobeMode: (mode: '2d' | '3d') => void;
   toggleGlobeMode: () => void;
+  isAmbientAudio: boolean;
+  toggleAmbientAudio: () => void;
   
   // Selection helpers
   selectEmpire: (id: string) => void;
@@ -83,9 +86,15 @@ export const TemporalProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<MapViewMode>('political');
   const [globeMode, setGlobeMode] = useState<'2d' | '3d'>('2d');
+  const [isAmbientAudio, setIsAmbientAudio] = useState<boolean>(false);
 
   const toggleGlobeMode = useCallback(() => {
     setGlobeMode(prev => (prev === '2d' ? '3d' : '2d'));
+  }, []);
+
+  const toggleAmbientAudio = useCallback(() => {
+    const active = sound.toggleAmbient();
+    setIsAmbientAudio(active);
   }, []);
 
   // Zoom controls
@@ -115,6 +124,7 @@ export const TemporalProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (!anchor) return;
     setCurrentAnchor(anchor);
     resetView();
+    sound.playEpochChime(anchor.id === 'revolt' ? 360 : anchor.id === 'chola' ? 480 : 432);
 
     // Auto-select corresponding empire if available
     if (anchor.defaultSelectedEmpireId && EMPIRES[anchor.defaultSelectedEmpireId]) {
@@ -324,6 +334,8 @@ export const TemporalProvider: React.FC<{ children: ReactNode }> = ({ children }
         globeMode,
         setGlobeMode,
         toggleGlobeMode,
+        isAmbientAudio,
+        toggleAmbientAudio,
         selectEmpire,
         selectPlace,
         selectRevoltCenter,

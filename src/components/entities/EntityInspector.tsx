@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTemporal } from '../../context/TemporalContext';
-import { X, ExternalLink, ShieldCheck, Compass, ArrowRight, Eye } from 'lucide-react';
+import { X, ExternalLink, ShieldCheck, Compass, ArrowRight, Eye, MapPin, Award, BookOpen } from 'lucide-react';
+import { sound } from '../../utils/sound';
 
 export const EntityInspector: React.FC = () => {
   const { 
@@ -163,22 +164,50 @@ export const EntityInspector: React.FC = () => {
                 </div>
               )}
 
+              {/* Associated Strategic Hubs */}
+              {emp.associatedPlaces && emp.associatedPlaces.length > 0 && (
+                <div>
+                  <h3 className="text-xs uppercase font-mono tracking-widest text-[#8C95A8] mb-2 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
+                    STRATEGIC CENTRES & HUBS
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {emp.associatedPlaces.map(placeId => (
+                      <button
+                        key={placeId}
+                        onClick={() => {
+                          sound.playClick(800);
+                          selectPlace(placeId);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-[#141A26] hover:bg-[#C5A059]/20 border border-[#232D3F] hover:border-[#C5A059]/50 text-xs text-[#E2DDD3] font-mono transition-all flex items-center gap-1.5 group/chip"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] group-hover/chip:scale-125 transition-transform" />
+                        <span className="capitalize">{placeId}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* CTAs */}
               <div className="pt-2 flex flex-col space-y-2">
                 <button
-                  onClick={() => setIsStepIntoEraOpen(true)}
-                  className="w-full py-2.5 px-4 rounded bg-[#C5A059] hover:bg-[#D4B36D] text-[#0C0F16] font-serif-title font-bold text-xs uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center space-x-2"
+                  onClick={() => {
+                    sound.playClick(850);
+                    setIsStepIntoEraOpen(true);
+                  }}
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#C5A059] to-[#E5C16C] hover:from-[#D4B36D] hover:to-[#F5D77F] text-[#0C0F16] font-serif-title font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_18px_rgba(197,160,89,0.35)] hover:shadow-[0_6px_24px_rgba(197,160,89,0.5)] flex items-center justify-center space-x-2 active:scale-[0.98]"
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4 text-[#0C0F16]" />
                   <span>Step Into This Era</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </button>
                 <button
                   onClick={() => {
-                    // Focus center of South Asia
+                    sound.playClick(500);
                     focusCoordinates([500, 400], 1.15);
                   }}
-                  className="w-full py-2 px-4 rounded bg-[#151A26] hover:bg-[#1E2536] border border-[#273145] text-[#C2CAD8] text-xs font-mono transition-colors"
+                  className="w-full py-2 px-4 rounded-xl bg-[#141A28] hover:bg-[#1C2436] border border-[#273145] hover:border-[#C5A059]/40 text-[#C2CAD8] hover:text-[#F3EFE6] text-xs font-mono transition-all"
                 >
                   Focus Continental Extent
                 </button>
