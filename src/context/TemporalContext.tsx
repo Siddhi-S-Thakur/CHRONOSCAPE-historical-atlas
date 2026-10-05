@@ -44,6 +44,9 @@ interface TemporalContextType {
   togglePlay: () => void;
   viewMode: MapViewMode;
   setViewMode: (mode: MapViewMode) => void;
+  globeMode: '2d' | '3d';
+  setGlobeMode: (mode: '2d' | '3d') => void;
+  toggleGlobeMode: () => void;
   
   // Selection helpers
   selectEmpire: (id: string) => void;
@@ -79,6 +82,11 @@ export const TemporalProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [isSourcesOpen, setIsSourcesOpen] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<MapViewMode>('political');
+  const [globeMode, setGlobeMode] = useState<'2d' | '3d'>('2d');
+
+  const toggleGlobeMode = useCallback(() => {
+    setGlobeMode(prev => (prev === '2d' ? '3d' : '2d'));
+  }, []);
 
   // Zoom controls
   const zoomIn = useCallback(() => {
@@ -313,6 +321,9 @@ export const TemporalProvider: React.FC<{ children: ReactNode }> = ({ children }
         togglePlay,
         viewMode,
         setViewMode,
+        globeMode,
+        setGlobeMode,
+        toggleGlobeMode,
         selectEmpire,
         selectPlace,
         selectRevoltCenter,

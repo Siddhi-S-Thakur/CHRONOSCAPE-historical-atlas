@@ -3,7 +3,7 @@ import { useTemporal } from '../../context/TemporalContext';
 import { MousePointer } from 'lucide-react';
 
 export const TemporalHUD: React.FC = () => {
-  const { currentAnchor, hoveredEntity } = useTemporal();
+  const { currentAnchor, hoveredEntity, globeMode, setGlobeMode } = useTemporal();
 
   if (currentAnchor.id === 'geology') {
     return null;
@@ -55,6 +55,35 @@ export const TemporalHUD: React.FC = () => {
             <span className="text-[#CCD3E2] font-semibold truncate block" title={currentAnchor.capital}>
               {currentAnchor.capital}
             </span>
+          </div>
+        </div>
+
+        {/* Projection Mode Quick Switcher */}
+        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#1C2230]">
+          <span className="text-[9px] font-mono text-[#7B8599] uppercase tracking-wider">
+            PROJECTION VIEW
+          </span>
+          <div className="flex items-center gap-1 bg-[#121622] p-0.5 rounded-md border border-[#222B3D]">
+            <button
+              onClick={() => setGlobeMode('2d')}
+              className={`px-2.5 py-0.5 text-[9px] font-mono rounded transition-all ${
+                globeMode === '2d'
+                  ? 'bg-[#C5A059] text-[#0A0E18] font-bold shadow'
+                  : 'text-[#8A95A8] hover:text-[#CCD3E2]'
+              }`}
+            >
+              2D ATLAS
+            </button>
+            <button
+              onClick={() => setGlobeMode('3d')}
+              className={`px-2.5 py-0.5 text-[9px] font-mono rounded transition-all ${
+                globeMode === '3d'
+                  ? 'bg-[#40BEEF] text-[#0A0E18] font-bold shadow'
+                  : 'text-[#8A95A8] hover:text-[#CCD3E2]'
+              }`}
+            >
+              3D GLOBE
+            </button>
           </div>
         </div>
       </div>
